@@ -1,0 +1,6 @@
+./venv
+*.ttf
+__pycache__/
+wandb/
+.env
+.sif

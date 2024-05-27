@@ -1,0 +1,35 @@
+BootStrap: docker
+From: nvidia/cuda:12.3.2-devel-ubuntu22.04
+
+%files
+    ./pyproject.toml /virtualenvs/pyproject.toml
+    ./poetry.lock /virtualenvs/pyproject.lock
+
+%post
+    # Ubuntuのパッケージリストを更新
+    cd /virtualenvs
+    apt-get update
+
+    # 必要なパッケージをインストール
+    apt-get install -y python3 python3-pip python3-venv curl git libaio-dev
+    git clone https://github.com/pyenv/pyenv.git /root/.pyenv
+    export PYENV_ROOT="/root/.pyenv"
+    export PATH="/root/.pyenv/bin:$PATH"
+    eval "$(pyenv init --path)"
+    pyenv install 3.10.12 && pyenv global 3.10.12
+
+    # Poetryをインストール
+    curl -sSL https://install.python-poetry.org | python3 -
+
+
+    export PATH=/root/.local/bin:$PATH
+
+    poetry config virtualenvs.in-project true
+
+    poetry install
+
+%environment
+    export PYENV_ROOT="/root/.pyenv"
+    export PATH="/root/.pyenv/bin:$PATH"
+    export PATH=/root/.local/bin:$PATH
+    export PATH="/virtualenvs/.venv/bin:$PATH"
