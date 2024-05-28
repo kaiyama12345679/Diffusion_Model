@@ -1,4 +1,3 @@
 #!/bin/bash
-export MODULEPATH=$MODULEPATH:$1
-module load hpcx-mt/2.12 cuda/12.2/12.2.0 nccl 
-cd $2 && deepspeed --hostfile hostfile --launcher OpenMPI --no_ssh_check --master_addr=$3 ./src/distributed_DDPM.py
+module load hpcx-mt/2.12 cuda/12.2/12.2.0 nccl
+cd $1 && torchrun --rdzv_backend=c10d --rdzv_endpoint=$2 --nproc_per_node=4 --nnodes=4 --node_rank=$3 ./src/distributed_DDPM.py

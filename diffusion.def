@@ -6,11 +6,12 @@ From: ubuntu:22.04
 
 %post
     # Ubuntuのパッケージリストを更新
+    export DEBIAN_FRONTEND=noninteractive
     cd /virtualenvs
     apt-get update
 
     # 必要なパッケージをインストール
-    apt-get install -y python3 python3-pip python3-venv curl git libaio-dev environment-modules
+    apt-get install -y python3 python3-pip python3-venv curl git libaio-dev tcl environment-modules
     
 
     git clone https://github.com/pyenv/pyenv.git /root/.pyenv

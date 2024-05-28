@@ -59,8 +59,8 @@ ds_config = {
 
 def distributed_train():
     transform = transforms.Compose([
-        transforms.Resize(64),  # 生成モデルの入力サイズに合わせてリサイズ
-        transforms.CenterCrop(64),  # 64x64の中央部分を切り出し
+        transforms.Resize(32),  # 生成モデルの入力サイズに合わせてリサイズ
+        transforms.CenterCrop(32),  # 64x64の中央部分を切り出し
         transforms.ToTensor(),  # PIL ImageからTensorに変換
         transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])  # 正規化
     ])
@@ -72,6 +72,11 @@ def distributed_train():
     if dist.get_rank() == 0:
         wandb.login()
         wandb.init(project="distributed_DDPM", name="image-DDPM")
+        world_size = dist.get_world_size()
+        wandb.log({"world_size": world_size})
+        # Save World size
+        with open("world_size.txt", "w") as f:
+            f.write(str(world_size))
     for epoch in range(100):
         epoch_loss = 0
         for x in dataloader:
@@ -87,7 +92,7 @@ def distributed_train():
             
             if epoch % 10 == 0:
                 # plot the generated image
-                xT = torch.randn(16, 3, 64, 64).cuda()
+                xT = torch.randn(16, 3, 32, 32).cuda()
                 generated_images = ddpm.backward_process(model_engine.module, xT)
                 generated_images = generated_images.cpu().detach()
                 grid_images = torchvision.utils.make_grid(generated_images, nrow=4)
