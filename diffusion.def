@@ -1,6 +1,5 @@
 BootStrap: docker
-From: nvidia/cuda:12.3.2-devel-ubuntu22.04
-
+From: ubuntu:22.04
 %files
     ./pyproject.toml /virtualenvs/pyproject.toml
     ./poetry.lock /virtualenvs/pyproject.lock
@@ -11,7 +10,9 @@ From: nvidia/cuda:12.3.2-devel-ubuntu22.04
     apt-get update
 
     # 必要なパッケージをインストール
-    apt-get install -y python3 python3-pip python3-venv curl git libaio-dev
+    apt-get install -y python3 python3-pip python3-venv curl git libaio-dev environment-modules
+    
+
     git clone https://github.com/pyenv/pyenv.git /root/.pyenv
     export PYENV_ROOT="/root/.pyenv"
     export PATH="/root/.pyenv/bin:$PATH"

@@ -1,6 +1,11 @@
-./venv
+.venv/
 *.ttf
 __pycache__/
 wandb/
 .env
 .sif
+data/
+model/
+hostfile
+*.out
+*.err
