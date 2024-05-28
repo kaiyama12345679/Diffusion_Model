@@ -3,7 +3,7 @@
 __pycache__/
 wandb/
 .env
-.sif
+*.sif
 data/
 model/
 hostfile
