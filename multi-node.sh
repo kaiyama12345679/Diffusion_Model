@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #$ -l rt_F=4
-#$ -l h_rt=12:00:00
+#$ -l h_rt=2:00:00
 #$ -j y
 #$ -cwd
 #$ -l USE_SSH=1

@@ -1,0 +1,17 @@
+torch==2.1.2
+torchvision==0.16.2 
+torchaudio==2.1.2
+wandb
+torchinfo
+attrdict
+lpips
+pathtools
+einops
+moviepy
+imageio
+python-box
+h5py
+deepspeed
+mpi4py
+sentencepiece
+transformers

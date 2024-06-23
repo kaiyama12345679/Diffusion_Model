@@ -14,6 +14,7 @@ from PIL import Image
 from torchvision import datasets, transforms
 from dotenv import load_dotenv
 load_dotenv()
+torch.multiprocessing.set_start_method("spawn")
 
 assert os.getenv("WANDB_API_KEY") is not None, "Please set WANDB_API_KEY in .env file"
 from DDPM import DDPM
@@ -35,7 +36,7 @@ class DatasetFromFolder(torch.utils.data.Dataset):
         return len(self.imgs)
 
 ds_config = {
-    "train_batch_size": 256,
+    "train_batch_size": 32,
     "gradient_accumulation_steps": 1,
     "gradient_clipping": 1.0,
     "optimizer": {
@@ -57,21 +58,22 @@ ds_config = {
     }
 }
 
-def distributed_train():
+def distributed_train(args):
+    deepspeed.init_distributed()
     transform = transforms.Compose([
-        transforms.Resize(32),  # 生成モデルの入力サイズに合わせてリサイズ
-        transforms.CenterCrop(32),  # 64x64の中央部分を切り出し
+        transforms.Resize(64),  # 生成モデルの入力サイズに合わせてリサイズ
+        transforms.CenterCrop(64),  # 64x64の中央部分を切り出し
         transforms.ToTensor(),  # PIL ImageからTensorに変換
         transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])  # 正規化
     ])
     dataset = DatasetFromFolder("./data/img_align_celeba", transform=transform)
     model = UNet(c_in=3, c_out=3)
     ddpm = DDPM(T=1000)
-    model_engine, _, dataloader, _ = deepspeed.initialize(config=ds_config, model=model, model_parameters=model.parameters(), training_data=dataset)
+    model_engine, _, dataloader, _ = deepspeed.initialize(args=args, config=ds_config, model=model, model_parameters=model.parameters(), training_data=dataset)
 
     if dist.get_rank() == 0:
         wandb.login()
-        wandb.init(project="distributed_DDPM", name="image-DDPM")
+        wandb.init(project="distributed_DDPM", name="image-DDPM-fuga")
         world_size = dist.get_world_size()
         wandb.log({"world_size": world_size})
         # Save World size
@@ -92,10 +94,10 @@ def distributed_train():
             
             if epoch % 10 == 0:
                 # plot the generated image
-                xT = torch.randn(16, 3, 32, 32).cuda()
+                xT = torch.randn(36, 3, 64, 64).cuda()
                 generated_images = ddpm.backward_process(model_engine.module, xT)
                 generated_images = generated_images.cpu().detach()
-                grid_images = torchvision.utils.make_grid(generated_images, nrow=4)
+                grid_images = torchvision.utils.make_grid(generated_images, nrow=6)
                 wandb.log({"generated_images": [wandb.Image(grid_images)],
                             "loss": epoch_loss,
                             "epoch": epoch})
@@ -104,10 +106,14 @@ def distributed_train():
                             "epoch": epoch})
                 
         # save the model
-        if epoch % 10 == 0:
-            model_engine.save_checkpoint(f"model")
+        if epoch % 5 == 0:
+            model_engine.save_checkpoint("model-hoge")
 
 
 if __name__ == "__main__":
-    distributed_train()
+    import argparse
+    parser = argparse.ArgumentParser()
+    deepspeed.add_config_arguments(parser)
+    args = parser.parse_args()
+    distributed_train(args)
             

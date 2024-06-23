@@ -2,19 +2,24 @@
 name = "diffusion"
 version = "0.1.0"
 description = ""
-authors = ["KaiYamashita <kai-yama12345679@g.ecc.u-tokyo.ac.jp>"]
+authors = ["Kai Yamashita <kai.yamashita@weblab.t.u-tokyo.ac.jp>"]
+readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-tqdm = "^4.66.4"
-torch = "^2.3.0"
+torch = "2.1.2"
+torchvision = "0.16.2"
+wandb = "^0.17.1"
+torchinfo = "^1.8.0"
+attrdict = "^2.0.1"
+lpips = "^0.1.4"
+pathtools = "^0.1.2"
+einops = "^0.8.0"
 deepspeed = "^0.14.2"
-numpy = "^1.26.4"
-matplotlib = "^3.9.0"
-python-dotenv = "^1.0.1"
-wandb = "^0.17.0"
-torchvision = "^0.18.0"
-gdown = "^5.2.0"
+mpi4py = "^3.1.6"
+transformers = "^4.41.2"
+setuptools = "69.5.1"
+packaging = "^24.1"
 
 
 [build-system]
